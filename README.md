@@ -1,6 +1,6 @@
 # Russian Spellbee Game
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The code for this project was produced by Claude Sonnet 3.7 and the React infrastructure was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
 
