@@ -1,1 +1,1 @@
-# rus_dict
+# Just another Russian nouns dictionary
