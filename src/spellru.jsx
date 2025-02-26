@@ -39,8 +39,6 @@ const RussianWordGame = () => {
   
   // Function to check if a set of letters can form at least some valid words
   const canFormValidWords = (letters) => {
-    let count = 0;
-    
     // Use only the center letter as the required letter
     const centerLetter = letters[0]; // We'll always put the center letter first
     const validWords = findPossibleWords(letters, centerLetter);
