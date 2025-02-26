@@ -14,22 +14,22 @@ const RussianWordGame = () => {
   const [dictionary, setDictionary] = useState([]);
   const [dictionaryLoaded, setDictionaryLoaded] = useState(false);
   
-  // Load the dictionary from the provided URL
+  // Load dictionary
   useEffect(() => {
-    fetch('https://raw.githubusercontent.com/pptz/rus_dict/refs/heads/main/rus_nouns.txt')
-      .then(response => response.text())
-      .then(data => {
-        const words = data.split(/\r?\n/).filter(word => word.trim().length > 0);
-        setDictionary(words);
-        setDictionaryLoaded(true);
-        setMessage(`Словарь загружен: ${words.length} слов`);
-      })
-      .catch(error => {
-        setMessage('Ошибка при загрузке словаря');
-        console.error('Error loading dictionary:', error);
-      });
+  fetch('/rus_nouns.txt')
+    .then(response => response.text())
+    .then(data => {
+      const words = data.split(/\r?\n/).filter(word => word.trim().length > 0);
+      setDictionary(words);
+      setDictionaryLoaded(true);
+      setMessage(`Словарь загружен: ${words.length} слов`);
+    })
+    .catch(error => {
+      setMessage('Ошибка при загрузке словаря');
+      console.error('Error loading dictionary:', error);
+    });
   }, []);
-  
+
   // Initialize the game
   useEffect(() => {
     if (dictionaryLoaded) {
@@ -46,7 +46,7 @@ const RussianWordGame = () => {
     const validWords = findPossibleWords(letters, centerLetter);
     
     // If we found at least a few valid words, consider this a good set
-    if (validWords.length >= 5) {
+    if (validWords.length >= 10) {
       return { isValid: true, wordCount: validWords.length, words: validWords };
     }
     
