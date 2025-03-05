@@ -13,6 +13,7 @@ const RussianWordGame = () => {
   const [possibleWords, setPossibleWords] = useState([]);
   const [dictionary, setDictionary] = useState([]);
   const [dictionaryLoaded, setDictionaryLoaded] = useState(false);
+  const [showUnfoundWords, setShowUnfoundWords] = useState(false);
   
   // Load dictionary
   useEffect(() => {
@@ -115,6 +116,7 @@ const RussianWordGame = () => {
     setScore(0);
     setMessage(`Новая игра началась! Возможных слов: ${possibleWords.length}`);
     setPossibleWords(possibleWords);
+    setShowUnfoundWords(false);
   };
   
   const findPossibleWords = (letters, centerLetter) => {
@@ -281,6 +283,34 @@ const RussianWordGame = () => {
           Новая игра
         </button>
       </div>
+
+      <div className="flex space-x-2 mt-4">
+        <button
+          onClick={() => setShowUnfoundWords(true)}
+          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+        >
+          Дать слабину
+        </button>
+      </div>
+
+    {showUnfoundWords && (
+      <div className="w-full mt-4">
+        <h2 className="text-lg font-semibold mb-2">Не найденные слова:</h2>
+        <div className="flex flex-wrap gap-2">
+          {possibleWords
+            .filter(word => !foundWords.includes(word))
+            .map((word, index) => (
+              <span key={index} className="bg-red-100 px-2 py-1 rounded">
+                {word.toUpperCase()}
+              </span>
+            ))}
+        </div>
+        <p className="mt-2 text-sm text-gray-600">
+          Найдено: {foundWords.length} из {possibleWords.length}
+        </p>
+      </div>
+    )}
+
     </div>
   );
 };
