@@ -1,6 +1,8 @@
 # Russian Spellbee Game
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The code for this project was produced by Claude Sonnet 3.7, and this is what's interesting about it. The deployment is [Here](https://pptz.github.io/spellru/)
+
+The React infrastructure was bootstrapped with [Create React App](https://github.com/facebook/create-react-app). Below are directions for running locally.
 
 ## Available Scripts
 
