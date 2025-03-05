@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 const RussianWordGame = () => {
   // Sample Russian letters
-  const allLetters = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя'.split('');
+  const allLetters = 'абвгдежзийклмнопрстуфхцчшщъыьэюя'.split('');
   
   const [gameLetters, setGameLetters] = useState([]);
   const [centerLetter, setCenterLetter] = useState('');
@@ -37,23 +37,27 @@ const RussianWordGame = () => {
     }
   }, [dictionaryLoaded]);
   
-  // Function to check if a set of letters can form at least some valid words
   const canFormValidWords = (letters) => {
-    // Use only the center letter as the required letter
-    const centerLetter = letters[0]; // We'll always put the center letter first
+    const centerLetter = letters[0];
     const validWords = findPossibleWords(letters, centerLetter);
-    
-    // If we found at least a few valid words, consider this a good set
-    if (validWords.length >= 10) {
+  
+    // Check if there's at least one pangram (word using all 7 letters)
+    const hasPangram = validWords.some(word => {
+      const uniqueLetters = new Set(word.split(''));
+      return letters.every(l => uniqueLetters.has(l));
+    });
+
+    // Require minimum 10 words AND at least one pangram
+    if (validWords.length >= 10 && hasPangram) {
       return { isValid: true, wordCount: validWords.length, words: validWords };
     }
-    
-    return { isValid: false, wordCount: validWords.length };
-  };
   
+  return { isValid: false, wordCount: validWords.length };
+};
+
   const generateViableLetterSet = () => {
     let attempts = 0;
-    const maxAttempts = 100; // Prevent infinite loops
+    const maxAttempts = 1000; // Prevent infinite loops
     let bestResult = { isValid: false, wordCount: 0, letters: [], words: [] };
     
     while (attempts < maxAttempts) {
@@ -114,28 +118,30 @@ const RussianWordGame = () => {
   };
   
   const findPossibleWords = (letters, centerLetter) => {
-    // Filter the dictionary to find valid words
     return dictionary.filter(word => {
       // Must contain center letter
       if (!word.includes(centerLetter)) return false;
-      
+    
       // Must be at least 4 letters
       if (word.length < 4) return false;
-      
-      // Check if the word can be formed using the available letters
+    
+      // Create frequency map of available letters
+      const letterCounts = letters.reduce((acc, l) => {
+        acc[l] = (acc[l] || 0) + 1;
+        return acc;
+      }, {});
+
+      // Check word can be formed with available letters
       const wordLetters = word.split('');
-      const lettersCopy = [...letters];
-      
       for (const char of wordLetters) {
-        const index = lettersCopy.indexOf(char);
-        if (index === -1) return false;
-        lettersCopy[index] = null; // Mark as used without removing (to handle repeated letters)
+        if (!letterCounts[char]) return false;
+        letterCounts[char]--;
       }
-      
+    
       return true;
     });
   };
-  
+
   const handleLetterClick = (letter) => {
     setCurrentWord(currentWord + letter);
   };
