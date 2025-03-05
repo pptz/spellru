@@ -47,8 +47,8 @@ const RussianWordGame = () => {
       return letters.every(l => uniqueLetters.has(l));
     });
 
-    // Require minimum 10 words AND at least one pangram
-    if (validWords.length >= 10 && hasPangram) {
+    // Require minimum 1 words AND at least one pangram
+    if (validWords.length >= 1 && hasPangram) {
       return { isValid: true, wordCount: validWords.length, words: validWords };
     }
   
@@ -118,28 +118,13 @@ const RussianWordGame = () => {
   };
   
   const findPossibleWords = (letters, centerLetter) => {
-    return dictionary.filter(word => {
-      // Must contain center letter
-      if (!word.includes(centerLetter)) return false;
-    
-      // Must be at least 4 letters
-      if (word.length < 4) return false;
-    
-      // Create frequency map of available letters
-      const letterCounts = letters.reduce((acc, l) => {
-        acc[l] = (acc[l] || 0) + 1;
-        return acc;
-      }, {});
-
-      // Check word can be formed with available letters
-      const wordLetters = word.split('');
-      for (const char of wordLetters) {
-        if (!letterCounts[char]) return false;
-        letterCounts[char]--;
-      }
-    
-      return true;
-    });
+    const availableLetters = new Set(letters);
+  
+    return dictionary.filter(word => 
+      word.length >= 4 &&
+      word.includes(centerLetter) &&
+      [...word].every(char => availableLetters.has(char))
+    );
   };
 
   const handleLetterClick = (letter) => {
