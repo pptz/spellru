@@ -143,16 +143,19 @@ const RussianWordGame = () => {
     // Check if word meets all conditions
     if (currentWord.length < 4) {
       setMessage('Слово должно содержать не менее 4 букв');
+      setCurrentWord('');
       return;
     }
     
     if (!currentWord.includes(centerLetter)) {
       setMessage(`Слово должно содержать букву "${centerLetter}"`);
+      setCurrentWord('');
       return;
     }
     
     if (foundWords.includes(currentWord)) {
       setMessage('Вы уже нашли это слово');
+      setCurrentWord('');
       return;
     }
     
