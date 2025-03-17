@@ -49,7 +49,8 @@ const RussianWordGame = () => {
     });
 
     // Require minimum 1 words AND at least one pangram
-    if (validWords.length >= 1 && hasPangram) {
+    //if (validWords.length >= 1 && hasPangram) {
+    if (validWords.length >= 10) {
       return { isValid: true, wordCount: validWords.length, words: validWords };
     }
   
