@@ -251,6 +251,12 @@ const RussianWordGame = () => {
       </div>
       
       <div className="mb-4 flex items-center space-x-2">
+        <button
+          onClick={shuffleOuterLetters}
+          className="px-4 py-2 bg-gray-500 text-white rounded"
+        >
+          ⟲
+        </button>
         <div className="text-xl font-semibold p-2 min-h-10 bg-gray-100 rounded w-48 text-center">
           {currentWord.toUpperCase()}
         </div>
@@ -274,12 +280,6 @@ const RussianWordGame = () => {
           className="px-4 py-2 bg-blue-500 text-white rounded"
         >
           Отправить
-        </button>
-        <button
-          onClick={shuffleOuterLetters}
-          className="px-4 py-2 bg-blue-500 text-white rounded"
-        >
-          Перемешать
         </button>
       </div>
       
