@@ -324,7 +324,6 @@ const RussianWordGame = () => {
 
     {showHints && (
       <div className="w-full mt-4">
-        <h2 className="text-lg font-semibold mb-2">Не найдены:</h2>
         <div className="flex flex-wrap gap-2">
           {possibleWords
             .filter(word => !foundWords.includes(word))
