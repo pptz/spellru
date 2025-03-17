@@ -13,7 +13,8 @@ const RussianWordGame = () => {
   const [possibleWords, setPossibleWords] = useState([]);
   const [dictionary, setDictionary] = useState([]);
   const [dictionaryLoaded, setDictionaryLoaded] = useState(false);
-  const [showUnfoundWords, setShowUnfoundWords] = useState(false);
+  const [showHints, setShowHints] = useState(false);
+  const [showCompleteUnfoundWords, setShowCompleteUnfoundWords] = useState(false);
   
   // Load dictionary
   useEffect(() => {
@@ -117,7 +118,7 @@ const RussianWordGame = () => {
     setScore(0);
     setMessage(`Новая игра началась! Возможных слов: ${possibleWords.length}`);
     setPossibleWords(possibleWords);
-    setShowUnfoundWords(false);
+    setShowHints(false);
   };
   
   const findPossibleWords = (letters, centerLetter) => {
@@ -311,16 +312,16 @@ const RussianWordGame = () => {
 
       <div className="flex space-x-2 mt-4">
         <button
-          onClick={() => setShowUnfoundWords(true)}
-          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+          onClick={() => setShowHints(true)}
+          className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-red-600"
         >
-          Дать слабину
+          Подсказки
         </button>
       </div>
 
-    {showUnfoundWords && (
+    {showHints && (
       <div className="w-full mt-4">
-        <h2 className="text-lg font-semibold mb-2">Подсказки:</h2>
+        <h2 className="text-lg font-semibold mb-2">Не найдены:</h2>
         <div className="flex flex-wrap gap-2">
           {possibleWords
             .filter(word => !foundWords.includes(word))
@@ -330,12 +331,35 @@ const RussianWordGame = () => {
               </span>
             ))}
         </div>
-        <p className="mt-2 text-sm text-gray-600">
-          Найдено: {foundWords.length} из {possibleWords.length}
-        </p>
       </div>
     )}
-
+    {showHints && (
+      <>
+        <div className="flex space-x-2 mt-4">
+          <button
+            onClick={() => setShowCompleteUnfoundWords(!showCompleteUnfoundWords)}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            {showCompleteUnfoundWords ? 'Скрыть слова' : 'Показать все слова'}
+          </button>
+        </div>
+    
+        {showCompleteUnfoundWords && (
+          <div className="w-full mt-4">
+            <h2 className="text-lg font-semibold mb-2">Все не найденные слова:</h2>
+            <div className="flex flex-wrap gap-2">
+              {possibleWords
+                .filter(word => !foundWords.includes(word))
+                .map((word, index) => (
+                  <span key={index} className="bg-red-200 px-2 py-1 rounded">
+                    {word.toUpperCase()}
+                  </span>
+                ))}
+            </div>
+          </div>
+        )}
+      </>
+    )}
     </div>
   );
 };
