@@ -320,13 +320,13 @@ const RussianWordGame = () => {
 
     {showUnfoundWords && (
       <div className="w-full mt-4">
-        <h2 className="text-lg font-semibold mb-2">Не найденные слова:</h2>
+        <h2 className="text-lg font-semibold mb-2">Подсказки:</h2>
         <div className="flex flex-wrap gap-2">
           {possibleWords
             .filter(word => !foundWords.includes(word))
             .map((word, index) => (
               <span key={index} className="bg-red-100 px-2 py-1 rounded">
-                {word.toUpperCase()}
+                {word.substring(0, 2).toUpperCase()}
               </span>
             ))}
         </div>
