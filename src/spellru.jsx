@@ -17,7 +17,7 @@ const RussianWordGame = () => {
   
   // Load dictionary
   useEffect(() => {
-  fetch('rus_nouns.txt')
+  fetch('dictionary.txt')
     .then(response => response.text())
     .then(data => {
       const words = data.split(/\r?\n/).filter(word => word.trim().length > 0);
