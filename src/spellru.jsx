@@ -255,7 +255,7 @@ const RussianWordGame = () => {
           onClick={shuffleOuterLetters}
           className="px-4 py-2 bg-gray-500 text-white rounded"
         >
-          ⟲
+          ♽
         </button>
         <div className="text-xl font-semibold p-2 min-h-10 bg-gray-100 rounded w-48 text-center">
           {currentWord.toUpperCase()}
