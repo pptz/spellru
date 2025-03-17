@@ -102,6 +102,9 @@ const RussianWordGame = () => {
   };
   
   const startNewGame = () => {
+    setShowHints(false); // hide hints
+    setShowCompleteUnfoundWords(false); // hide spoilers
+
     const { letters, possibleWords } = generateViableLetterSet();
     
     // Always set the center letter as the first letter in the array
