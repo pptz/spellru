@@ -184,7 +184,22 @@ const RussianWordGame = () => {
   const resetWord = () => {
     setCurrentWord('');
   };
+
+  const shuffleOuterLetters = () => {
+    // Keep the center letter at index 0, shuffle the rest (positions 1-6)
+    const newLetters = [...gameLetters];
+    const outerLetters = newLetters.slice(1);
   
+    // Fisher-Yates shuffle algorithm for the outer letters
+    for (let i = outerLetters.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [outerLetters[i], outerLetters[j]] = [outerLetters[j], outerLetters[i]];
+    }
+  
+    // Combine the center letter with shuffled outer letters
+    setGameLetters([newLetters[0], ...outerLetters]);
+  };
+
   // Hexagons in a honeycomb pattern - Center position is first in the array
   const hexPositions = [
     { top: 60, left: 120 }, // Center - always position 0
@@ -259,6 +274,12 @@ const RussianWordGame = () => {
           className="px-4 py-2 bg-blue-500 text-white rounded"
         >
           Отправить
+        </button>
+        <button
+          onClick={shuffleOuterLetters}
+          className="px-4 py-2 bg-blue-500 text-white rounded"
+        >
+          Перемешать
         </button>
       </div>
       
