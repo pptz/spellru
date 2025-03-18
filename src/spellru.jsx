@@ -38,7 +38,40 @@ const RussianWordGame = () => {
       startNewGame();
     }
   }, [dictionaryLoaded]);
+
+  // Add this useEffect for keyboard handling
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      // Handle letters
+      const key = event.key.toLowerCase();
+      
+      // Check if the pressed key is one of our game letters
+      if (gameLetters.includes(key)) {
+        handleLetterClick(key);
+      } 
+      // Handle backspace/delete for removing the last letter
+      else if (event.key === 'Backspace' || event.key === 'Delete') {
+        handleDelete();
+      } 
+      // Handle Enter for submitting the word
+      else if (event.key === 'Enter') {
+        handleSubmit();
+      }
+      // Handle Escape to clear the current word
+      else if (event.key === 'Escape') {
+        resetWord();
+      }
+    };
   
+    // Add the event listener
+    window.addEventListener('keydown', handleKeyDown);
+    
+    // Clean up the event listener when component unmounts
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [gameLetters, currentWord]); // Dependencies: gameLetters and currentWord
+
   const canFormValidWords = (letters) => {
     const centerLetter = letters[0];
     const validWords = findPossibleWords(letters, centerLetter);
