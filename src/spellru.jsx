@@ -15,6 +15,7 @@ const RussianWordGame = () => {
   const [dictionaryLoaded, setDictionaryLoaded] = useState(false);
   const [showHints, setShowHints] = useState(false);
   const [showCompleteUnfoundWords, setShowCompleteUnfoundWords] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
   
   // Load dictionary
   useEffect(() => {
@@ -71,6 +72,18 @@ const RussianWordGame = () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [gameLetters, currentWord]); // Dependencies: gameLetters and currentWord
+
+  // Add this useEffect to handle the celebration timer
+  useEffect(() => {
+    if (showCelebration) {
+      // Auto-hide celebration after 5 seconds
+      const timer = setTimeout(() => {
+        setShowCelebration(false);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showCelebration]);
 
   const canFormValidWords = (letters) => {
     const centerLetter = letters[0];
@@ -225,6 +238,7 @@ const RussianWordGame = () => {
       // Check if all possible words have been found
       if (foundWords.length + 1 === possibleWords.length && possibleWords.length > 0) {
         setMessage('Поздравляем! Вы нашли все возможные слова!');
+        setShowCelebration(true); // Trigger celebration
       }
     } else {
       setMessage('Это не существующее слово или не существительное в единственном числе');
@@ -409,6 +423,44 @@ const RussianWordGame = () => {
           </div>
         )}
       </>
+    )}
+    {showCelebration && (
+      <div className="fixed inset-0 pointer-events-none z-50">
+        {Array.from({ length: 100 }).map((_, i) => {
+          // Define all variables inside the map function
+          const left = Math.random() * 100;
+          const animationDuration = 3 + Math.random() * 2;
+          const animationDelay = Math.random() * 2;
+          const size = 5 + Math.random() * 10;
+
+          // Random color
+          const colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500', 'bg-pink-500'];
+          const color = colors[Math.floor(Math.random() * colors.length)];
+          return (
+            <div
+              key={i}
+              className={`absolute ${color} rounded-full opacity-70`}
+              style={{
+                left: `${left}%`,
+                top: '-5%',
+                width: `${size}px`,
+                height: `${size}px`,
+                animation: `fall ${animationDuration}s ease-in ${animationDelay}s forwards`
+              }}
+            />
+          );
+        })}
+        
+        <div 
+          className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-6xl font-bold text-center text-yellow-500 opacity-0"
+          style={{
+            animation: 'celebrationText 1.5s ease-out forwards',
+            textShadow: '0 0 10px rgba(0,0,0,0.5)'
+          }}
+        >
+          Поздравляем!
+        </div>
+      </div>
     )}
     </div>
   );
