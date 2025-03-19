@@ -77,14 +77,29 @@ const RussianWordGame = () => {
     const validWords = findPossibleWords(letters, centerLetter);
   
     // Check if there's at least one pangram (word using all 7 letters)
-    const hasPangram = validWords.some(word => {
-      const uniqueLetters = new Set(word.split(''));
-      return letters.every(l => uniqueLetters.has(l));
-    });
+    //const hasPangram = validWords.some(word => {
+    //  const uniqueLetters = new Set(word.split(''));
+    //  return letters.every(l => uniqueLetters.has(l));
+    //});
 
-    // Require minimum 1 words AND at least one pangram
     //if (validWords.length >= 1 && hasPangram) {
-    if (validWords.length >= 10) {
+    //if (validWords.length >= 10) {
+    //  return { isValid: true, wordCount: validWords.length, words: validWords };
+    //}
+
+    // Check if each letter participates in at least one word
+    const letterUsage = new Map(letters.map(letter => [letter, false]));
+  
+    validWords.forEach(word => {
+      [...word].forEach(char => {
+        if (letterUsage.has(char)) {
+          letterUsage.set(char, true);
+        }
+      });
+    });
+    // Check if all letters are used
+    const allLettersUsed = Array.from(letterUsage.values()).every(used => used);
+    if (allLettersUsed) {
       return { isValid: true, wordCount: validWords.length, words: validWords };
     }
   
