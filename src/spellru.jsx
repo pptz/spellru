@@ -19,18 +19,43 @@ const RussianWordGame = () => {
   
   // Load dictionary
   useEffect(() => {
-  fetch('dictionary.txt')
-    .then(response => response.text())
-    .then(data => {
-      const words = data.split(/\r?\n/).filter(word => word.trim().length > 0);
-      setDictionary(words);
-      setDictionaryLoaded(true);
-      setMessage(`Словарь загружен: ${words.length} слов`);
-    })
-    .catch(error => {
-      setMessage('Ошибка при загрузке словаря');
-      console.error('Error loading dictionary:', error);
-    });
+    console.log('Attempting to fetch dictionary from:', window.location.origin + 'dictionary.txt');
+
+    //fetch('dictionary.txt')
+    fetch(process.env.PUBLIC_URL + '/dictionary.txt')
+      .then(response => {
+        // Check for HTTP errors first
+        if (!response.ok) {
+          // Don't try to parse the response as text if it's an error
+          throw new Error(`HTTP error: ${response.status}`);
+        }
+        
+        // Check content type to ensure we're getting a text file
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('text/plain')) {
+          throw new Error(`Expected text/plain but got ${contentType}`);
+        }
+        
+        return response.text();
+      })
+      .then(data => {
+        // Add a sanity check on the data
+        if (data.includes('<html') || data.includes('<!DOCTYPE')) {
+          throw new Error('Received HTML instead of dictionary data');
+        }
+        
+        const words = data.split(/\r?\n/).filter(word => word.trim().length > 0);
+        setDictionary(words);
+        setDictionaryLoaded(true);
+        setMessage(`Словарь загружен: ${words.length} слов`);
+      })
+      .catch(error => {
+        console.error('Error loading dictionary:', error);
+        setMessage('Ошибка при загрузке словаря: ' + error.message);
+        // Ensure dictionary is empty on error
+        setDictionary([]);
+        setDictionaryLoaded(false);
+      });
   }, []);
 
   // Initialize the game
