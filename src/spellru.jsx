@@ -1,27 +1,27 @@
 import React, { useState, useEffect } from 'react';
+import usePersistedState from './usePersistedState';
 
 const RussianWordGame = () => {
   // Sample Russian letters
   const allLetters = 'абвгдежзийклмнопрстуфхцчшщъыьэюя'.split('');
-  
-  const [gameLetters, setGameLetters] = useState([]);
-  const [centerLetter, setCenterLetter] = useState('');
-  const [currentWord, setCurrentWord] = useState('');
-  const [foundWords, setFoundWords] = useState([]);
-  const [score, setScore] = useState(0);
+
+  const [gameLetters, setGameLetters] = usePersistedState('gameLetters', []);
+  const [centerLetter, setCenterLetter] = usePersistedState('centerLetter', '');
+  const [currentWord, setCurrentWord] = usePersistedState('currentWord', '');
+  const [foundWords, setFoundWords] = usePersistedState('foundWords', []);
+  const [score, setScore] = usePersistedState('score', 0);
+  const [possibleWords, setPossibleWords] = usePersistedState('possibleWords', []);
+
   const [message, setMessage] = useState('Загрузка словаря...');
-  const [possibleWords, setPossibleWords] = useState([]);
   const [dictionary, setDictionary] = useState([]);
   const [dictionaryLoaded, setDictionaryLoaded] = useState(false);
   const [showHints, setShowHints] = useState(false);
   const [showCompleteUnfoundWords, setShowCompleteUnfoundWords] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [alternateRules, setAlternateRules] = useState(false);
   
   // Load dictionary
   useEffect(() => {
-    console.log('Attempting to fetch dictionary from:', window.location.origin + 'dictionary.txt');
-
-    //fetch('dictionary.txt')
     fetch(process.env.PUBLIC_URL + '/dictionary.txt')
       .then(response => {
         // Check for HTTP errors first
@@ -61,7 +61,7 @@ const RussianWordGame = () => {
   // Initialize the game
   useEffect(() => {
     if (dictionaryLoaded) {
-      startNewGame();
+      startNewGameNoLetterRepeat();
     }
   }, [dictionaryLoaded]);
 
@@ -110,21 +110,15 @@ const RussianWordGame = () => {
     }
   }, [showCelebration]);
 
+  // Add this useEffect to log when showCelebration changes
+  useEffect(() => {
+    console.log("Celebration state changed to:", showCelebration);
+  }, [showCelebration]);
+
   const canFormValidWords = (letters) => {
     const centerLetter = letters[0];
     const validWords = findPossibleWords(letters, centerLetter);
   
-    // Check if there's at least one pangram (word using all 7 letters)
-    //const hasPangram = validWords.some(word => {
-    //  const uniqueLetters = new Set(word.split(''));
-    //  return letters.every(l => uniqueLetters.has(l));
-    //});
-
-    //if (validWords.length >= 1 && hasPangram) {
-    //if (validWords.length >= 10) {
-    //  return { isValid: true, wordCount: validWords.length, words: validWords };
-    //}
-
     // Check if each letter participates in at least one word
     const letterUsage = new Map(letters.map(letter => [letter, false]));
   
@@ -141,8 +135,8 @@ const RussianWordGame = () => {
       return { isValid: true, wordCount: validWords.length, words: validWords };
     }
   
-  return { isValid: false, wordCount: validWords.length };
-};
+    return { isValid: false, wordCount: validWords.length };
+  };
 
   const generateViableLetterSet = () => {
     let attempts = 0;
@@ -154,11 +148,21 @@ const RussianWordGame = () => {
       
       // Select 7 random letters from the Russian alphabet
       const selectedLetters = [];
-      while (selectedLetters.length < 7) {
-        const randomIndex = Math.floor(Math.random() * allLetters.length);
-        const letter = allLetters[randomIndex];
-        if (!selectedLetters.includes(letter)) {
+      if (alternateRules) {
+        // With alternate rules, allow repeated letters
+        while (selectedLetters.length < 7) {
+          const randomIndex = Math.floor(Math.random() * allLetters.length);
+          const letter = allLetters[randomIndex];
           selectedLetters.push(letter);
+        }
+      } else {
+        // Original rules - unique letters only
+        while (selectedLetters.length < 7) {
+          const randomIndex = Math.floor(Math.random() * allLetters.length);
+          const letter = allLetters[randomIndex];
+          if (!selectedLetters.includes(letter)) {
+            selectedLetters.push(letter);
+          }
         }
       }
       
@@ -209,15 +213,49 @@ const RussianWordGame = () => {
     setPossibleWords(possibleWords);
     setShowHints(false);
   };
-  
+
+  const startNewGameLetterRepeat = () => {
+      setAlternateRules(false);
+      startNewGame();
+  };
+  const startNewGameNoLetterRepeat = () => {
+      setAlternateRules(true);
+      startNewGame();
+  };
+
   const findPossibleWords = (letters, centerLetter) => {
-    const availableLetters = new Set(letters);
+    // Convert the letters array to a map with counts
+    const letterCounts = new Map();
+    letters.forEach(letter => {
+      letterCounts.set(letter, (letterCounts.get(letter) || 0) + 1);
+    });
   
-    return dictionary.filter(word => 
-      word.length >= 4 &&
-      word.includes(centerLetter) &&
-      [...word].every(char => availableLetters.has(char))
-    );
+    return dictionary.filter(word => {
+      // Must include center letter
+      if (!word.includes(centerLetter)) return false;
+      
+      // Must be at least 4 characters
+      if (word.length < 4) return false;
+      
+      if (alternateRules) {
+        // Alternate rules: Check that each letter in the word doesn't exceed its count in the letter set
+        const wordLetterCounts = new Map();
+        [...word].forEach(char => {
+          wordLetterCounts.set(char, (wordLetterCounts.get(char) || 0) + 1);
+        });
+        
+        // Check that each letter in the word doesn't exceed its count in the letter set
+        for (const [char, count] of wordLetterCounts.entries()) {
+          if (!letterCounts.has(char) || count > letterCounts.get(char)) {
+            return false;
+          }
+        }
+        return true;
+      } else {
+        // Original rules: Just check that each letter exists in the set
+        return [...word].every(char => letterCounts.has(char));
+      }
+    });
   };
 
   const handleLetterClick = (letter) => {
@@ -250,8 +288,32 @@ const RussianWordGame = () => {
       return;
     }
     
-    // Check if it's a valid Russian word
-    if (dictionary.includes(currentWord.toLowerCase())) {
+    // Check if it's a valid word according to current rules
+    const letterCounts = new Map();
+    gameLetters.forEach(letter => {
+      letterCounts.set(letter, (letterCounts.get(letter) || 0) + 1);
+    });
+    
+    // Check for letter usage according to rules
+    let validLetterUsage = true;
+    if (alternateRules) {
+      const wordLetterCounts = new Map();
+      [...currentWord].forEach(char => {
+        wordLetterCounts.set(char, (wordLetterCounts.get(char) || 0) + 1);
+      });
+      
+      for (const [char, count] of wordLetterCounts.entries()) {
+        if (!letterCounts.has(char) || count > letterCounts.get(char)) {
+          validLetterUsage = false;
+          break;
+        }
+      }
+    } else {
+      validLetterUsage = [...currentWord].every(char => letterCounts.has(char));
+    }
+    
+    // Check if it's a valid Russian word and valid letter usage
+    if (validLetterUsage && dictionary.includes(currentWord.toLowerCase())) {
       setFoundWords([...foundWords, currentWord]);
       
       // Scoring: 1 point for 4-letter words, otherwise 1 point per letter
@@ -263,7 +325,14 @@ const RussianWordGame = () => {
       // Check if all possible words have been found
       if (foundWords.length + 1 === possibleWords.length && possibleWords.length > 0) {
         setMessage('Поздравляем! Вы нашли все возможные слова!');
+        console.log("Trying to show celebration!");
         setShowCelebration(true); // Trigger celebration
+      }
+    } else if (!validLetterUsage) {
+      if (alternateRules) {
+        setMessage('Слово содержит букву больше раз, чем она присутствует в наборе');
+      } else {
+        setMessage('Слово содержит букву, которой нет в наборе');
       }
     } else {
       setMessage('Это не существующее слово или не существительное в единственном числе');
@@ -321,6 +390,8 @@ const RussianWordGame = () => {
         {gameLetters.map((letter, index) => {
           // Determine proper position index - letter at index 0 goes to position 0 (center)
           const positionIndex = index;
+          // Count occurrences of this letter in gameLetters
+          const letterCount = gameLetters.filter(l => l === letter).length;
           return (
             <div 
               key={index}
@@ -336,6 +407,14 @@ const RussianWordGame = () => {
               }}
             >
               <span className="transform -rotate-45">{letter.toUpperCase()}</span>
+              {/* Show number badge for duplicate letters in alternate rules */}
+              {/*
+              {alternateRules && letterCount > 1 && (
+                <span className="absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center transform -rotate-45">
+                  {letterCount}
+                </span>
+              )}
+              */}
             </div>
           );
         })}
@@ -380,6 +459,20 @@ const RussianWordGame = () => {
         <p className="text-sm">Найдено: {foundWords.length} / {possibleWords.length} возможных слов</p>
       </div>
       
+<div className="flex space-x-4 mt-6 justify-center">
+  <button 
+    onClick={startNewGameNoLetterRepeat} 
+    className="px-4 py-2 bg-green-500 text-white rounded"
+  >
+    Играть с одним использованием букв
+  </button>
+  <button 
+    onClick={startNewGameLetterRepeat} 
+    className="px-4 py-2 bg-blue-500 text-white rounded"
+  >
+    Играть с многократным использованием букв
+  </button>
+</div>      
       <div className="w-full">
         <h2 className="text-lg font-semibold mb-2">Найденные слова:</h2>
         <div className="flex flex-wrap gap-2">
@@ -389,15 +482,6 @@ const RussianWordGame = () => {
             </span>
           ))}
         </div>
-      </div>
-      
-      <div className="flex space-x-2 mt-6">
-        <button 
-          onClick={startNewGame} 
-          className="px-4 py-2 bg-green-500 text-white rounded"
-        >
-          Новая игра
-        </button>
       </div>
 
       <div className="flex space-x-2 mt-4">
@@ -449,8 +533,9 @@ const RussianWordGame = () => {
         )}
       </>
     )}
+    
     {showCelebration && (
-      <div className="fixed inset-0 pointer-events-none z-50">
+      <div className="fixed inset-0 pointer-events-none z-50 bg-black bg-opacity-10">
         {Array.from({ length: 100 }).map((_, i) => {
           // Define all variables inside the map function
           const left = Math.random() * 100;
