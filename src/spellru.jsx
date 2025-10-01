@@ -6,7 +6,7 @@ const RussianWordGame = () => {
   const allLetters = 'абвгдежзийклмнопрстуфхцчшщъыьэюя'.split('');
   
   const [gameLetters, setGameLetters] = usePersistedState('gameLetters', []);
-  const [centerLetter, setCenterLetter] = usePersistedState('centerLetter', '');
+  const [centerLetterIndex, setCenterLetterIndex] = usePersistedState('centerLetterIndex', 0);
   const [currentWord, setCurrentWord] = usePersistedState('currentWord', '');
   const [foundWords, setFoundWords] = usePersistedState('foundWords', []);
   const [score, setScore] = usePersistedState('score', 0);
@@ -17,6 +17,9 @@ const RussianWordGame = () => {
   const [showHints, setShowHints] = useState(false);
   const [showCompleteUnfoundWords, setShowCompleteUnfoundWords] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  
+  // Derived value - get the actual center letter
+  const centerLetter = gameLetters[centerLetterIndex] || '';
   
   // Load dictionary
   useEffect(() => {
@@ -116,8 +119,8 @@ const RussianWordGame = () => {
   };
 
   const canFormValidWords = (letters) => {
-    const centerLetter = letters[0];
-    const validWords = findPossibleWords(letters, centerLetter);
+    const centerLetterValue = letters[0];
+    const validWords = findPossibleWords(letters, centerLetterValue);
   
     // Check if each letter participates in at least one word
     const letterUsage = new Map(letters.map((letter, idx) => [`${letter}-${idx}`, false]));
@@ -186,10 +189,10 @@ const RussianWordGame = () => {
     setShowCompleteUnfoundWords(false);
 
     const { letters, possibleWords } = generateViableLetterSet();
-    const centerLetter = letters[0];
+    const centerIndex = 0; // Center is always at index 0
     
     setGameLetters(letters);
-    setCenterLetter(centerLetter);
+    setCenterLetterIndex(centerIndex);
     setCurrentWord('');
     setFoundWords([]);
     setScore(0);
@@ -198,10 +201,10 @@ const RussianWordGame = () => {
     setShowHints(false);
   };
   
-  const findPossibleWords = (letters, centerLetter) => {
+  const findPossibleWords = (letters, centerLetterValue) => {
     return dictionary.filter(word => 
       word.length >= 4 &&
-      word.includes(centerLetter) &&
+      word.includes(centerLetterValue) &&
       canFormWord(word, letters)
     );
   };
@@ -305,12 +308,13 @@ const RussianWordGame = () => {
       <div className="mb-6 relative h-40 w-64">
         {gameLetters.map((letter, index) => {
           const positionIndex = index;
+          const isCenterPosition = index === centerLetterIndex;
           return (
             <div 
               key={index}
               onClick={() => handleLetterClick(letter)}
               className={`absolute cursor-pointer flex items-center justify-center 
-                         ${letter === centerLetter ? 'bg-yellow-300' : 'bg-gray-200'} 
+                         ${isCenterPosition ? 'bg-yellow-300' : 'bg-gray-200'} 
                          w-16 h-16 text-2xl font-bold
                          transform rotate-45`}
               style={{
