@@ -118,10 +118,40 @@ const RussianWordGame = () => {
     return true;
   };
 
+  // Check if a word is a pangram (uses all letters in the collection)
+  const isPangram = (word, letters) => {
+    const letterCounts = {};
+    letters.forEach(letter => {
+      letterCounts[letter] = (letterCounts[letter] || 0) + 1;
+    });
+
+    const wordLetterCounts = {};
+    for (const char of word) {
+      if (letterCounts[char]) {
+        wordLetterCounts[char] = (wordLetterCounts[char] || 0) + 1;
+      }
+    }
+
+    // Check if all letters from the collection are used in the word
+    for (const letter in letterCounts) {
+      if (!wordLetterCounts[letter] || wordLetterCounts[letter] < letterCounts[letter]) {
+        return false;
+      }
+    }
+    
+    return true;
+  };
+
   const canFormValidWords = (letters) => {
     const centerLetterValue = letters[0];
     const validWords = findPossibleWords(letters, centerLetterValue);
   
+    // Check if there's at least one pangram in the valid words
+    const hasPangramWord = validWords.some(word => isPangram(word, letters));
+    if (!hasPangramWord) {
+      return { isValid: false, wordCount: validWords.length };
+    }
+
     // Check if each letter participates in at least one word
     const letterUsage = new Map(letters.map((letter, idx) => [`${letter}-${idx}`, false]));
   

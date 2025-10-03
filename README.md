@@ -1,8 +1,10 @@
 # Russian Spellbee Game
 
-The code for this project was mainly produced by Claude Sonnet 3.7, and that's what's interesting about it. The deployment is [Here](https://pptz.github.io/spellru/)
+The code for this project was mainly produced by Claude Sonnet 3.7 and subsequent versions, and that's what's interesting about it. The deployment is [Here](https://pptz.github.io/spellru/)
 
 The React infrastructure was bootstrapped with [Create React App](https://github.com/facebook/create-react-app). Below are directions for running locally.
+
+Note to self: to redeploy to `gh-pages` after pushing a change to `main`, run `$ npm run deploy`
 
 ## Available Scripts
 
