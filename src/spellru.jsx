@@ -17,6 +17,7 @@ const RussianWordGame = () => {
   const [showHints, setShowHints] = useState(false);
   const [showCompleteUnfoundWords, setShowCompleteUnfoundWords] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [isGeneratingGame, setIsGeneratingGame] = useState(false);
   
   // Derived value - get the actual center letter
   const centerLetter = gameLetters[centerLetterIndex] || '';
@@ -215,20 +216,25 @@ const RussianWordGame = () => {
   };
   
   const startNewGame = () => {
+    setIsGeneratingGame(true);
     setShowHints(false);
     setShowCompleteUnfoundWords(false);
 
-    const { letters, possibleWords } = generateViableLetterSet();
-    const centerIndex = 0; // Center is always at index 0
-    
-    setGameLetters(letters);
-    setCenterLetterIndex(centerIndex);
-    setCurrentWord('');
-    setFoundWords([]);
-    setScore(0);
-    setMessage(`Новая игра началась! Возможных слов: ${possibleWords.length}`);
-    setPossibleWords(possibleWords);
-    setShowHints(false);
+    // Use setTimeout to allow the UI to update before the heavy computation
+    setTimeout(() => {
+      const { letters, possibleWords } = generateViableLetterSet();
+      const centerIndex = 0; // Center is always at index 0
+      
+      setGameLetters(letters);
+      setCenterLetterIndex(centerIndex);
+      setCurrentWord('');
+      setFoundWords([]);
+      setScore(0);
+      setMessage(`Новая игра началась! Возможных слов: ${possibleWords.length}`);
+      setPossibleWords(possibleWords);
+      setShowHints(false);
+      setIsGeneratingGame(false);
+    }, 50);
   };
   
   const findPossibleWords = (letters, centerLetterValue) => {
@@ -411,10 +417,18 @@ const RussianWordGame = () => {
       
       <div className="flex space-x-2 mt-6">
         <button 
-          onClick={startNewGame} 
-          className="px-4 py-2 bg-green-500 text-white rounded"
+          onClick={startNewGame}
+          disabled={isGeneratingGame}
+          className={`px-4 py-2 text-white rounded flex items-center space-x-2 ${
+            isGeneratingGame 
+              ? 'bg-gray-400 cursor-not-allowed' 
+              : 'bg-green-500 hover:bg-green-600'
+          }`}
         >
-          Новая игра
+          {isGeneratingGame && (
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          )}
+          <span>{isGeneratingGame ? 'Загрузка...' : 'Новая игра'}</span>
         </button>
       </div>
 
