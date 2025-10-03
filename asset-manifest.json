@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/spellru/static/css/main.08686230.css",
-    "main.js": "/spellru/static/js/main.47c49e87.js",
+    "main.css": "/spellru/static/css/main.2f8805d7.css",
+    "main.js": "/spellru/static/js/main.b51c55cd.js",
     "static/js/453.540d1bdd.chunk.js": "/spellru/static/js/453.540d1bdd.chunk.js",
     "index.html": "/spellru/index.html",
-    "main.08686230.css.map": "/spellru/static/css/main.08686230.css.map",
-    "main.47c49e87.js.map": "/spellru/static/js/main.47c49e87.js.map",
+    "main.2f8805d7.css.map": "/spellru/static/css/main.2f8805d7.css.map",
+    "main.b51c55cd.js.map": "/spellru/static/js/main.b51c55cd.js.map",
     "453.540d1bdd.chunk.js.map": "/spellru/static/js/453.540d1bdd.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.08686230.css",
-    "static/js/main.47c49e87.js"
+    "static/css/main.2f8805d7.css",
+    "static/js/main.b51c55cd.js"
   ]
 }
